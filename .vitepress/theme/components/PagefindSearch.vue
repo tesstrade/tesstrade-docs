@@ -244,12 +244,24 @@ function focusInput() {
 
   position: relative;
   z-index: 30;
+  display: flex;
   flex: 0 0 auto;
+  flex-direction: row-reverse;
+  align-items: center;
+  width: 40px;
   margin-right: 12px;
+  overflow: visible;
+  transition: width 0.18s ease;
+}
+
+.tt-pagefind-search--open {
+  width: clamp(360px, 42vw, 620px);
+  max-width: calc(100vw - 160px);
 }
 
 .tt-pagefind-search__trigger {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   width: 40px;
@@ -282,26 +294,29 @@ function focusInput() {
 }
 
 .tt-pagefind-search__panel {
-  position: absolute;
-  top: -2px;
-  right: calc(100% + 10px);
-  width: min(640px, calc(100vw - 150px));
-  max-height: min(560px, calc(100vh - 84px));
-  overflow: auto;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  background: var(--vp-c-bg);
-  box-shadow: 0 18px 48px rgb(0 0 0 / 18%);
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 40px;
+  margin-right: 8px;
+  overflow: visible;
+  background: transparent;
 }
 
 .tt-pagefind-search__state {
-  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
   color: var(--vp-c-text-2);
+  background: var(--vp-c-bg);
   font-size: 13px;
 }
 
 .tt-pagefind-search__mount {
-  padding: 12px;
+  height: 40px;
 }
 
 .tt-pagefind-search__mount:not(.tt-pagefind-search__mount--ready) {
@@ -316,19 +331,24 @@ function focusInput() {
 
 .tt-pagefind-search :deep(.pagefind-ui__form) {
   position: relative;
+  height: 40px;
   margin: 0;
+}
+
+.tt-pagefind-search :deep(.pagefind-ui__form::before) {
+  display: none;
 }
 
 .tt-pagefind-search :deep(.pagefind-ui__search-input) {
   width: 100%;
-  height: 44px;
-  padding: 0 42px 0 42px;
+  height: 40px;
+  padding: 0 42px 0 14px;
   border: 1px solid var(--vp-c-brand-1);
   border-radius: 8px;
   color: var(--vp-c-text-1);
   background: var(--vp-c-bg);
   font-size: 14px;
-  line-height: 44px;
+  line-height: 40px;
   outline: 0;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--vp-c-brand-1) 13%, transparent);
 }
@@ -338,11 +358,30 @@ function focusInput() {
 }
 
 .tt-pagefind-search :deep(.pagefind-ui__search-clear) {
+  top: 3px;
+  right: 3px;
+  height: 34px;
+  padding: 0 12px;
   color: var(--vp-c-text-3);
+  background: var(--vp-c-bg);
+  font-size: 12px;
 }
 
 .tt-pagefind-search :deep(.pagefind-ui__drawer) {
-  margin-top: 10px;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  left: 0;
+  z-index: 40;
+  display: block;
+  max-height: min(520px, calc(100vh - var(--vp-nav-height) - 32px));
+  margin-top: 0;
+  overflow: auto;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 18%);
+  padding: 12px;
 }
 
 .tt-pagefind-search :deep(.pagefind-ui__message) {
@@ -410,16 +449,18 @@ function focusInput() {
     top: 8px;
     right: 56px;
     z-index: 100;
+    width: 40px;
     margin-right: 0;
   }
 
-  .tt-pagefind-search__panel {
-    position: fixed;
-    top: calc(var(--vp-nav-height) + 8px);
+  .tt-pagefind-search--open {
     right: 12px;
-    left: 12px;
-    width: auto;
-    max-height: calc(100vh - var(--vp-nav-height) - 24px);
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
+
+  .tt-pagefind-search__panel {
+    height: 40px;
   }
 }
 </style>
