@@ -2,6 +2,10 @@
 
 Classic strategy based on two simple moving averages, one fast and one slow. When the fast crosses above the slow, it opens long. When it crosses below, it closes long and opens short. It reverses the position when it crosses back.
 
+::: tabs
+
+@tab Template
+
 Serves as a starting point for understanding the dispatcher, the `DECLARATION`, and the order flow. The implementation fits in fewer than 100 lines.
 
 ## When to use
@@ -156,21 +160,42 @@ def main(df=None, sdk=None, params={}):
     return DECLARATION
 ```
 
+@tab Diagram
+
+Visual representation of the internal logic. This flowchart explains how the strategy handles states and crossovers bar by bar.
+
+```mermaid
+graph TD
+    Start[New Candle] --> CheckData{Data >= slow + 1?}
+    CheckData -- No --> End[Wait for more data]
+    CheckData -- Yes --> Calc[Calculate SMA Fast & Slow]
+    Calc --> Position{Position?}
+    
+    Position -- Flat --> CrossUp{Fast crossed UP?}
+    CrossUp -- Yes --> Buy[sdk.buy: buy_to_open]
+    CrossUp -- No --> CrossDown{Fast crossed DOWN?}
+    CrossDown -- Yes --> Sell[sdk.sell: sell_short_to_open]
+    CrossDown -- No --> End
+    
+    Position -- Long --> CrossDownExit{Fast crossed DOWN?}
+    CrossDownExit -- Yes --> CloseLong[sdk.sell: sell_to_close]
+    CrossDownExit -- No --> End
+    
+    Position -- Short --> CrossUpCover{Fast crossed UP?}
+    CrossUpCover -- Yes --> CoverShort[sdk.buy: buy_to_cover]
+    CrossUpCover -- No --> End
+
+    Buy --> End
+    Sell --> End
+    CloseLong --> End
+    CoverShort --> End
+```
+
+:::
+
 ---
 
 ## Dissecting the code
-
-### The `DECLARATION`
-
-Declares two editable inputs (`fast_period`, `slow_period`) and two plots (the two moving averages) over the price panel (`pane: "overlay"`). These inputs appear in the strategy configuration panel; the plots appear on the chart.
-
-### `_sma_series(values, period)`
-
-Computes the SMA **for each point** of the series, returning an array of the same size as `values`. On the first `period - 1` points there is not enough data, so it returns `None`. This preserves visual alignment on the chart.
-
-### `_sma(values, period)`
-
-Computes the SMA **only at the last point**. Used inside `on_bar_strategy` for efficiency. In bar-by-bar execution, only the current value is needed, not the full series.
 
 ### The crossover criterion
 
@@ -190,58 +215,4 @@ elif sdk.position > 0 and crossed_down:  # close long
 elif sdk.position < 0 and crossed_up:    # cover short
 ```
 
-Covers the 4 states (flat with a signal on either side; long with an exit; short with a cover). A single signal does not do two things on the same bar, hence the `if / elif` cascade. To **close and reverse** on the same bar, switch to `reverse_position` (see [canonical actions](../sdk-reference/actions.md#6-reverse_position)).
-
-### The dispatcher
-
-The three classic branches:
-
-1. `sdk is not None` runs `on_bar_strategy` (trading).
-2. `df is not None` returns plots + series (chart).
-3. Fallback returns `DECLARATION` (metadata).
-
----
-
-## Variations worth testing
-
-### 1. Fixed stop below the swing low
-
-Instead of waiting for the opposite crossover to exit, set a fixed stop loss:
-
-```python
-if sdk.position == 0 and crossed_up:
-    recent_low = min(c["low"] for c in sdk.candles[-5:])
-    sdk.buy(
-        action="buy_to_open",
-        qty=1,
-        order_type="market",
-        stop_loss=recent_low,
-    )
-```
-
-### 2. Trend filter
-
-Only enter long if the slow is also rising:
-
-```python
-slow_rising = slow_ma > prev_slow
-if sdk.position == 0 and crossed_up and slow_rising:
-    sdk.buy(action="buy_to_open", qty=1, order_type="market")
-```
-
-### 3. Sizing proportional to cash
-
-```python
-close = sdk.candles[-1]["close"]
-qty = (sdk.cash * 0.25) / close  # uses 25% of cash
-sdk.buy(action="buy_to_open", qty=qty, order_type="market")
-```
-
----
-
-## Common issues with this template
-
-* **0 trades:** `fast_period` and `slow_period` too close together produce unstable crossovers. Try `fast=9, slow=21` first; on long timeframes (1d), use `fast=20, slow=50`.
-* **Too many trades in sideways markets:** SMA crossover performs poorly in ranges. Add a filter (ADX > 25, or separation between the moving averages above a threshold).
-* **Line does not appear on the chart:** check that the `name` in `plots` matches the key in `series`. Both are `"ma_fast"` and `"ma_slow"` here.
-* **`None` stop:** if `stop_loss=recent_low` is passed and `recent_low` is `None` (fewer than 5 candles), the engine silently ignores the stop. Always validate.
+Covers the 4 states (flat with a signal on either side; long with an exit; short with a cover). A single signal does not do two things on the same bar, hence the `if / elif` cascade. 
