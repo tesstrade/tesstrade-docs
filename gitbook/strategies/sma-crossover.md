@@ -1,3 +1,7 @@
+<script setup>
+import Tabs from '../.vitepress/theme/components/Tabs.vue'
+</script>
+
 # SMA Crossover
 
 Classic strategy based on two simple moving averages, one fast and one slow. When the fast crosses above the slow, it opens long. When it crosses below, it closes long and opens short. It reverses the position when it crosses back.
