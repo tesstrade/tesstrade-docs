@@ -4,9 +4,9 @@ Write indicators and strategies in **Python**. The same script runs in two conte
 
 
 
-> **info**: 
+::: info
 **New here?** Start with [Backtest vs Chart Trading](getting-started/overview.md) for the mental model, then jump to the [Example script](getting-started/example-script.md) to write your first strategy in five minutes.
----
+:::
 
 
 
@@ -147,8 +147,7 @@ Anything outside this surface raises `SecurityError`. Full detail in [Sandbox li
 
 
 
-> **success**: 
+::: tip
 **Quick start:** copy the [SMA Crossover](strategies/sma-crossover.md) template, adjust the parameters, and run it. From there, swap in the indicator of your choice from [Implementing SMA and EMA](indicators/implementing-sma-ema.md) or [RSI, MACD and Bollinger Bands](indicators/rsi-macd-bands.md).
----
-
+:::
 
