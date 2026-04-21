@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'TessTrade Docs',
+  title: 'Learn TessTrade',
+  titleTemplate: 'Learn TessTrade',
+  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
   description: 'TessTrade Python SDK documentation',
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
@@ -19,7 +21,7 @@ export default defineConfig({
   },
   themeConfig: {
     logo: { src: '/logo.svg', alt: 'TessTrade' },
-    siteTitle: 'TessTrade Docs',
+    siteTitle: 'Learn TessTrade', logo: '/logo.svg',
     nav: [
       { text: 'Guide', link: '/' }
     ],
