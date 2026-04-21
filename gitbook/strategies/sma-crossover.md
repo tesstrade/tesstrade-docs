@@ -1,5 +1,5 @@
 <script setup>
-import Tabs from '../.vitepress/theme/components/Tabs.vue'
+import Tabs from '../../.vitepress/theme/components/Tabs.vue'
 </script>
 
 # SMA Crossover
