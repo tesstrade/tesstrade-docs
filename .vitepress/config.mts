@@ -5,6 +5,12 @@ export default defineConfig({
   description: 'TessTrade Python SDK documentation',
   srcDir: 'gitbook',
   cleanUrls: true,
+  sitemap: {
+    hostname: 'https://learn.tesstrade.com',
+    transformItems(items) {
+      return items.filter((item) => item.url !== 'SUMMARY' && item.url !== '/SUMMARY')
+    }
+  },
   transformHtml(code) {
     return code.replace(/<main class="main"(?![^>]*data-pagefind-body)/, '<main class="main" data-pagefind-body')
   },
