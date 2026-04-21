@@ -3,6 +3,9 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'TessTrade Docs',
   description: 'TessTrade Python SDK documentation',
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
+  ],
   srcDir: 'gitbook',
   cleanUrls: true,
   sitemap: {
@@ -15,6 +18,7 @@ export default defineConfig({
     return code.replace(/<main class="main"(?![^>]*data-pagefind-body)/, '<main class="main" data-pagefind-body')
   },
   themeConfig: {
+    logo: { src: '/logo.svg', alt: 'TessTrade' },
     siteTitle: 'TessTrade Docs',
     nav: [
       { text: 'Guide', link: '/' }

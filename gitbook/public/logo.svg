@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 0 80 105" width="120" height="120">
+  <defs>
+    <linearGradient id="titaniumGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#666666" /> <stop offset="100%" stop-color="#1a1a1a" />
+    </linearGradient>
+
+    <linearGradient id="silverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#888888" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(48, 5) skewX(-20)">
+    <rect x="0" y="25" width="24" height="75" rx="2.5" fill="url(#titaniumGrad)" />
+    <rect x="34" y="10" width="24" height="75" rx="2.5" fill="url(#silverGrad)" />
+  </g>
+</svg>
