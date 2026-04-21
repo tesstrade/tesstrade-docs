@@ -1,4 +1,4 @@
-import { defineConfig, type DefaultTheme } from 'vitepress'
+import { defineConfig } from 'vitepress'
 
 const algoliaAppId =
   process.env.ALGOLIA_APP_ID ??
@@ -18,16 +18,13 @@ const algoliaApiKey =
   process.env.DOCSEARCH_API_KEY ??
   'ffd7fa3276483532da76c5114a470500'
 
-const search: DefaultTheme.Config['search'] =
+const inlineSearch =
   algoliaAppId && algoliaIndexName && algoliaApiKey
     ? {
-        provider: 'algolia',
-        options: {
-          appId: algoliaAppId,
-          indexName: algoliaIndexName,
-          apiKey: algoliaApiKey,
-          placeholder: 'Search docs'
-        }
+        appId: algoliaAppId,
+        indexName: algoliaIndexName,
+        apiKey: algoliaApiKey,
+        placeholder: 'Search docs'
       }
     : undefined
 
@@ -38,7 +35,7 @@ export default defineConfig({
   cleanUrls: true,
   themeConfig: {
     siteTitle: 'TessTrade Docs',
-    search,
+    inlineSearch,
     nav: [
       { text: 'Guide', link: '/' }
     ],

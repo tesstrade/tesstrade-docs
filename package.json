@@ -9,6 +9,7 @@
     "preview": "vitepress preview --host 0.0.0.0"
   },
   "devDependencies": {
+    "algoliasearch": "5.50.2",
     "vitepress": "1.6.4"
   }
 }
