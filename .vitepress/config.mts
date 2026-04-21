@@ -3,8 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Learn TessTrade',
   titleTemplate: 'Learn TessTrade',
-  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
-  description: 'TessTrade Python SDK documentation',
+  description: 'TessTrade Documentation',
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
   ],
@@ -19,9 +18,12 @@ export default defineConfig({
   transformHtml(code) {
     return code.replace(/<main class="main"(?![^>]*data-pagefind-body)/, '<main class="main" data-pagefind-body')
   },
+  transformPageData(pageData) {
+    pageData.title = 'Learn TessTrade'
+  },
   themeConfig: {
-    logo: { src: '/logo.svg', alt: 'TessTrade' },
-    siteTitle: 'Learn TessTrade', logo: '/logo.svg',
+    logo: '/logo.svg',
+    siteTitle: 'Learn TessTrade',
     nav: [
       { text: 'Guide', link: '/' }
     ],
