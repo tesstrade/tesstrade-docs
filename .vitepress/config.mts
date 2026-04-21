@@ -1,6 +1,5 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 
 export default withMermaid(
   defineConfig({
@@ -16,11 +15,6 @@ export default withMermaid(
       hostname: 'https://learn.tesstrade.com',
       transformItems(items) {
         return items.filter((item) => item.url !== 'SUMMARY' && item.url !== '/SUMMARY')
-      }
-    },
-    markdown: {
-      config(md) {
-        md.use(tabsMarkdownPlugin)
       }
     },
     transformHtml(code) {
