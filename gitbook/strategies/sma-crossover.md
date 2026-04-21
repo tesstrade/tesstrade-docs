@@ -67,23 +67,23 @@ Visual representation of the internal logic. This flowchart explains how the str
 
 ```mermaid
 graph TD
-    Start[New Candle] --> CheckData{Data >= slow + 1?}
-    CheckData -- No --> End[Wait for more data]
-    CheckData -- Yes --> Calc[Calculate SMA Fast & Slow]
+    Start([New Candle]) --> CheckData{Data >= slow + 1?}
+    CheckData -- No --> End([End])
+    CheckData -- Yes --> Calc[Calculate SMAs]
     Calc --> Position{Position?}
     
-    Position -- Flat --> CrossUp{Fast crossed UP?}
-    CrossUp -- Yes --> Buy[sdk.buy: buy_to_open]
-    CrossUp -- No --> CrossDown{Fast crossed DOWN?}
-    CrossDown -- Yes --> Sell[sdk.sell: sell_short_to_open]
+    Position -- Flat --> CrossUp{Fast > Slow?}
+    CrossUp -- Yes --> Buy[sdk.buy]
+    CrossUp -- No --> CrossDown{Fast < Slow?}
+    CrossDown -- Yes --> Sell[sdk.sell]
     CrossDown -- No --> End
     
-    Position -- Long --> CrossDownExit{Fast crossed DOWN?}
-    CrossDownExit -- Yes --> CloseLong[sdk.sell: sell_to_close]
+    Position -- Long --> CrossDownExit{Fast < Slow?}
+    CrossDownExit -- Yes --> CloseLong[sdk.sell]
     CrossDownExit -- No --> End
     
-    Position -- Short --> CrossUpCover{Fast crossed UP?}
-    CrossUpCover -- Yes --> CoverShort[sdk.buy: buy_to_cover]
+    Position -- Short --> CrossUpCover{Fast > Slow?}
+    CrossUpCover -- Yes --> CoverShort[sdk.buy]
     CrossUpCover -- No --> End
 
     Buy --> End
