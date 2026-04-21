@@ -283,10 +283,10 @@ function focusInput() {
 
 .tt-pagefind-search__panel {
   position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: min(680px, calc(100vw - 32px));
-  max-height: min(560px, calc(100vh - 96px));
+  top: -2px;
+  right: calc(100% + 10px);
+  width: min(640px, calc(100vw - 150px));
+  max-height: min(560px, calc(100vh - 84px));
   overflow: auto;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
