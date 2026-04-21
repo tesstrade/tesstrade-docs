@@ -2,9 +2,13 @@
 
 Write indicators and strategies in **Python**. The same script runs in two contexts - a historical backtest and live chart trading - under an identical contract. This documentation covers how the engine calls your code, what the SDK exposes, the set of accepted actions, and the most common pitfalls.
 
+<div v-pre>
+<div v-pre>
 {% hint style="info" %}
 **New here?** Start with [Backtest vs Chart Trading](getting-started/overview.md) for the mental model, then jump to the [Example script](getting-started/example-script.md) to write your first strategy in five minutes.
 {% endhint %}
+</div>
+</div>
 
 ## What you write
 
@@ -141,6 +145,10 @@ Anything outside this surface raises `SecurityError`. Full detail in [Sandbox li
 | Code size | ~100KB | rejected at load time |
 | Nesting depth | 20 levels | rejected at load time |
 
+<div v-pre>
+<div v-pre>
 {% hint style="success" %}
 **Quick start:** copy the [SMA Crossover](strategies/sma-crossover.md) template, adjust the parameters, and run it. From there, swap in the indicator of your choice from [Implementing SMA and EMA](indicators/implementing-sma-ema.md) or [RSI, MACD and Bollinger Bands](indicators/rsi-macd-bands.md).
 {% endhint %}
+</div>
+</div>
