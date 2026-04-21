@@ -12,7 +12,6 @@ const { isDark } = useData()
       data-repo="tesstrade/tesstrade-docs"
       data-repo-id="R_kgDOSIVsvQ"
       data-category="General"
-      data-category-id="DIC_kwDON7uKMM4Cm9A2"
       data-mapping="pathname"
       data-strict="0"
       data-reactions-enabled="1"
