@@ -1,41 +1,15 @@
 import { defineConfig } from 'vitepress'
 
-const algoliaAppId =
-  process.env.ALGOLIA_APP_ID ??
-  process.env.VITE_ALGOLIA_APP_ID ??
-  process.env.DOCSEARCH_APP_ID ??
-  'A7UJCVHTFZ'
-const algoliaIndexName =
-  process.env.ALGOLIA_INDEX_NAME ??
-  process.env.VITE_ALGOLIA_INDEX_NAME ??
-  process.env.DOCSEARCH_INDEX_NAME ??
-  'tesstrade-docs'
-const algoliaApiKey =
-  process.env.ALGOLIA_SEARCH_API_KEY ??
-  process.env.ALGOLIA_API_KEY ??
-  process.env.VITE_ALGOLIA_SEARCH_API_KEY ??
-  process.env.VITE_ALGOLIA_API_KEY ??
-  process.env.DOCSEARCH_API_KEY ??
-  'ffd7fa3276483532da76c5114a470500'
-
-const inlineSearch =
-  algoliaAppId && algoliaIndexName && algoliaApiKey
-    ? {
-        appId: algoliaAppId,
-        indexName: algoliaIndexName,
-        apiKey: algoliaApiKey,
-        placeholder: 'Search docs'
-      }
-    : undefined
-
 export default defineConfig({
   title: 'TessTrade Docs',
   description: 'TessTrade Python SDK documentation',
   srcDir: 'gitbook',
   cleanUrls: true,
+  transformHtml(code) {
+    return code.replace(/<main class="main"(?![^>]*data-pagefind-body)/, '<main class="main" data-pagefind-body')
+  },
   themeConfig: {
     siteTitle: 'TessTrade Docs',
-    inlineSearch,
     nav: [
       { text: 'Guide', link: '/' }
     ],

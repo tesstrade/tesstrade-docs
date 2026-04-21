@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vitepress build",
+    "build": "npm run docs:build",
+    "docs:build": "vitepress build && npx pagefind --site .vitepress/dist",
     "dev": "vitepress dev --host 0.0.0.0",
     "preview": "vitepress preview --host 0.0.0.0"
   },
   "devDependencies": {
-    "algoliasearch": "5.50.2",
+    "pagefind": "^1.5.2",
     "vitepress": "1.6.4"
   }
 }
