@@ -20,9 +20,16 @@ DECLARATION = {
         {"name": "overbought", "type": "float", "default": 70.0},
     ],
     "plots": [
-        {"name": "rsi", "title": "RSI", "source": "rsi", "type": "line", "color": "#A78BFA"},
+        {"name": "rsi", "title": "RSI", "source": "rsi",
+         "type": "line", "color": "#A78BFA", "width": 2},
     ],
     "pane": "new",
+    "scale": "right",
+    "levels": [
+        {"name": "Overbought", "value": 70, "color": "#EF4444", "width": 1, "style": "dashed"},
+        {"name": "Midline",    "value": 50, "color": "#64748B", "width": 1, "style": "dotted"},
+        {"name": "Oversold",   "value": 30, "color": "#22C55E", "width": 1, "style": "dashed"},
+    ],
 }
 
 def on_bar_strategy(sdk, params):

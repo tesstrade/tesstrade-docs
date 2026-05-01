@@ -141,7 +141,7 @@ def _build_chart(df, params):
     slow = int((params or {}).get("slow_period", 21))
     closes = list(df["close"])
     return {
-        "plots": DECLARATION["plots"],
+        **DECLARATION,
         "series": {
             "ma_fast": _sma_series(closes, fast),
             "ma_slow": _sma_series(closes, slow),

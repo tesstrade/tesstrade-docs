@@ -20,11 +20,18 @@ DECLARATION = {
         {"name": "signal", "type": "int", "default": 9},
     ],
     "plots": [
-        {"name": "macd", "title": "MACD", "source": "macd", "type": "line"},
-        {"name": "signal_line", "title": "Signal", "source": "signal_line", "type": "line"},
-        {"name": "hist", "title": "Histogram", "source": "hist", "type": "histogram"},
+        {"name": "macd",        "title": "MACD",      "source": "macd",
+         "type": "line",      "color": "#22D3EE", "width": 2},
+        {"name": "signal_line", "title": "Signal",    "source": "signal_line",
+         "type": "line",      "color": "#F59E0B", "width": 2},
+        {"name": "hist",        "title": "Histogram", "source": "hist",
+         "type": "histogram", "color": "#94A3B8"},
     ],
     "pane": "new",
+    "scale": "right",
+    "levels": [
+        {"name": "Zero", "value": 0, "color": "#64748B", "width": 1, "style": "dotted"},
+    ],
 }
 
 def on_bar_strategy(sdk, params):
@@ -72,8 +79,8 @@ graph TD
 
     Buy --> End
     Sell --> End
-    CloseLong --> End
-    CoverShort --> End
+    CloseL --> End
+    CoverS --> End
 ```
 
   </template>

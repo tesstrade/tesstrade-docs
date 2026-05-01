@@ -132,11 +132,13 @@ There is no traditional debugger (breakpoint, step-through). Available tools:
 # In _build_chart: recomputes the EMA used incrementally live.
 def _build_chart(df, params):
     ...
+    debug_plot = {
+        "name": "debug_ema", "source": "debug_ema", "type": "line",
+        "color": "#FF00FF", "width": 1, "style": "dashed",
+    }
     return {
-        "plots": DECLARATION["plots"] + [
-            {"name": "debug_ema", "source": "debug_ema", "type": "line",
-             "color": "#FF00FF", "lineWidth": 1, "style": "dashed"},
-        ],
+        **DECLARATION,
+        "plots": DECLARATION["plots"] + [debug_plot],
         "series": {
             "ma_fast": ...,
             "ma_slow": ...,

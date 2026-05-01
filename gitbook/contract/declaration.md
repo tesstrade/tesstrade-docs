@@ -98,12 +98,20 @@ Each plot has a data series (in `series`, returned by the `df=` branch) and visu
     "title": "SMA 9",           # optional - legend
     "source": "ma_fast",        # REQUIRED - key in series (usually equal to name)
     "type": "line",             # REQUIRED - "line" | "histogram" | "dots" | "area" | "arrows" | "circles"
-    "color": "#22D3EE",         # hex or CSS color
-    "lineWidth": 2,             # pixels
+    "color": "#22D3EE",         # 6-digit hex only (#RRGGBB), no alpha
+    "width": 2,                 # pixels (use "width", not "lineWidth")
     "style": "solid",           # "solid" | "dashed" | "dotted"
     "visible": True,
 }
 ```
+
+> **Field name notes:**
+> * `width` is the canonical spelling — `lineWidth` is silently ignored by the
+>   normalizer, so the line falls back to the default thickness.
+> * `color` accepts only **6-digit hex** (`#RRGGBB`). Alpha-prefixed forms
+>   like `#RRGGBBAA` are rejected. For semi-transparent fills, use
+>   `"type": "area"` and let the renderer apply the standard fill alpha
+>   automatically.
 
 **The contract between `plots` and `series`:**
 
@@ -145,6 +153,13 @@ The key `"ma_fast"` in `series` must match the plot's `source` exactly. Otherwis
 | `"new"` | Creates a new pane below the chart. Used for RSI, MACD, volume. |
 
 For an oscillator such as RSI, you declare `"pane": "new"` and the frontend creates a dedicated subchart.
+
+> **Critical for oscillators:** if your indicator's value range is unrelated
+> to the asset's price scale (RSI 0–100, MACD around zero, Aroon Osc -100..+100,
+> ATR in price-unit absolute), it **must** declare `"pane": "new"`. Without it,
+> the line renders on the price pane — and on a high-priced asset (BTC ~78k),
+> a value of 70 maps to a y-coordinate flush with zero, off-screen. The legend
+> chip appears, but the line is invisible.
 
 ---
 
@@ -247,7 +262,7 @@ DECLARATION = {
             "source": "ma_fast",
             "type": "line",
             "color": "#22D3EE",
-            "lineWidth": 2,
+            "width": 2,
         },
         {
             "name": "ma_slow",
@@ -255,7 +270,7 @@ DECLARATION = {
             "source": "ma_slow",
             "type": "line",
             "color": "#F59E0B",
-            "lineWidth": 2,
+            "width": 2,
         },
     ],
     "pane": "overlay",
@@ -263,4 +278,15 @@ DECLARATION = {
 }
 ```
 
-When the engine calls `main()` with no arguments, you return exactly this constant. When it calls with `df=`, you return `{"plots": DECLARATION["plots"], "series": {"ma_fast": [...], "ma_slow": [...]}}`.
+When the engine calls `main()` with no arguments, you return exactly this constant. When it calls with `df=`, the canonical pattern is to spread the DECLARATION into the return so every metadata field travels with the data:
+
+```python
+def _build_chart(df, params):
+    # ... compute series ...
+    return {
+        **DECLARATION,
+        "series": {"ma_fast": [...], "ma_slow": [...]},
+    }
+```
+
+The spread propagates `type`, `pane`, `scale`, `plots`, `levels`, etc. in a single object. This is more robust than the older `{"plots": DECLARATION["plots"], "series": {...}}` form, which only forwards `plots` and lets every other field fall back to defaults.

@@ -34,7 +34,7 @@ DECLARATION = {
         {"name": "period", "type": "int", "default": 20, "min": 1, "max": 200},
     ],
     "plots": [
-        {"name": "sma", "source": "sma", "type": "line", "color": "#22D3EE", "lineWidth": 2},
+        {"name": "sma", "source": "sma", "type": "line", "color": "#22D3EE", "width": 2},
     ],
     "pane": "overlay",  # drawn together with the candles
 }
@@ -51,10 +51,10 @@ DECLARATION = {
         {"name": "period", "type": "int", "default": 14, "min": 2, "max": 100},
     ],
     "plots": [
-        {"name": "rsi", "source": "rsi", "type": "line", "color": "#A78BFA", "lineWidth": 2},
+        {"name": "rsi", "source": "rsi", "type": "line", "color": "#A78BFA", "width": 2},
     ],
     "pane": "new",       # separate pane
-    "scale": "left",     # scale on the left side
+    "scale": "right",    # most oscillators read better on the right
     "levels": [
         {"name": "Overbought", "value": 70, "color": "#EF4444", "style": "dashed"},
         {"name": "Midline",    "value": 50, "color": "#64748B", "style": "dotted"},
@@ -126,8 +126,8 @@ It is common to want a line **and** a histogram in the same pane. Classic exampl
 
 ```python
 "plots": [
-    {"name": "macd",        "source": "macd",        "type": "line",      "color": "#22D3EE", "lineWidth": 2},
-    {"name": "signal_line", "source": "signal_line", "type": "line",      "color": "#F59E0B", "lineWidth": 2},
+    {"name": "macd",        "source": "macd",        "type": "line",      "color": "#22D3EE", "width": 2},
+    {"name": "signal_line", "source": "signal_line", "type": "line",      "color": "#F59E0B", "width": 2},
     {"name": "hist",        "source": "hist",        "type": "histogram", "color": "#94A3B8"},
 ],
 "pane": "new",

@@ -84,3 +84,23 @@ Ensures the entire position is closed, especially important in fractional spot m
 
 ### Do not use candle indices as timestamps
 Always use `sdk.candles[-1]["time"]` for accuracy in timeline alignment.
+
+### Spread `**DECLARATION` in the `df=` branch
+When the strategy also draws indicators, `_build_chart` should return
+`{**DECLARATION, "series": {...}}` so every metadata field — `pane`, `scale`,
+`plots`, `levels` — travels with the data. The legacy
+`{"plots": DECLARATION["plots"], "series": {...}}` form forwards only `plots`
+and lets the rest fall back to defaults, which silently breaks oscillators
+and pane assignment.
+
+```python
+def _build_chart(df, params):
+    closes = list(df["close"])
+    return {
+        **DECLARATION,
+        "series": {
+            "ma_fast": _sma_series(closes, fast),
+            "ma_slow": _sma_series(closes, slow),
+        },
+    }
+```

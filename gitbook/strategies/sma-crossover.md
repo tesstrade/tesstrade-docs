@@ -41,7 +41,7 @@ DECLARATION = {
             "source": "ma_fast",
             "type": "line",
             "color": "#22D3EE",
-            "lineWidth": 2,
+            "width": 2,
         },
         {
             "name": "ma_slow",
@@ -49,11 +49,27 @@ DECLARATION = {
             "source": "ma_slow",
             "type": "line",
             "color": "#F59E0B",
-            "lineWidth": 2,
+            "width": 2,
         },
     ],
     "pane": "overlay",
+    "scale": "none",
+    "levels": [],
 }
+
+def _build_chart(df, params):
+    # In the df= branch, spread DECLARATION so pane/scale/plots travel with the series.
+    # See: contract/dispatcher-main.md
+    closes = list(df["close"])
+    fast = int((params or {}).get("fast_period", 9))
+    slow = int((params or {}).get("slow_period", 21))
+    return {
+        **DECLARATION,
+        "series": {
+            "ma_fast": _sma_series(closes, fast),
+            "ma_slow": _sma_series(closes, slow),
+        },
+    }
 
 def on_bar_strategy(sdk, params):
     # logic execution...

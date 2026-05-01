@@ -119,6 +119,20 @@ def f(x):
     return x * 2
 ```
 
+### Other restricted constructs
+
+| Construct | Why it is blocked | Alternative |
+|---|---|---|
+| `lambda` | Can hide arbitrary code | `def helper(...)` |
+| `global` / `nonlocal` | Mutates outer scopes implicitly | Pass values via parameters or `sdk.state` |
+| `while True:` (infinite loop) | Cannot terminate within budget | `for ... in range(...)` or a finite condition |
+| `eval` / `exec` / `compile` | Dynamic code execution | Express logic as plain Python |
+| `del` (statement) | Removes protections from objects | Re-bind the variable to `None` instead |
+
+In short: write direct, explicit code. If a construct does not pass the
+validator, simplify the function. The whitelist intentionally favors
+predictable scripts over clever ones.
+
 ## Resource limits
 
 | Resource | Default limit | Raised if exceeded |

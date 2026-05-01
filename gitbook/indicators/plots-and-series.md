@@ -20,8 +20,8 @@ DECLARATION = {
             "name": "sma",             # internal name
             "source": "sma",           # must match the key in series
             "type": "line",
-            "color": "#22D3EE",
-            "lineWidth": 2,
+            "color": "#22D3EE",        # 6-digit hex (#RRGGBB), no alpha
+            "width": 2,                # use "width", not "lineWidth"
         },
     ],
     "pane": "overlay",
@@ -42,7 +42,7 @@ def _build_chart(df, params):
     period = int((params or {}).get("period", 14))
     closes = list(df["close"])
     return {
-        "plots": DECLARATION["plots"],
+        **DECLARATION,
         "series": {
             "sma": _sma_series(closes, period),
         },
@@ -54,6 +54,12 @@ def main(df=None, sdk=None, params={}):
         return _build_chart(df, params)
     return DECLARATION
 ```
+
+> **Why spread `**DECLARATION`?** It forwards every metadata field (`type`,
+> `pane`, `scale`, `plots`, `levels`) along with `series`. The older form
+> `{"plots": DECLARATION["plots"], "series": {...}}` works for overlay
+> indicators, but quietly drops `pane` for oscillators — the line renders
+> on the price pane and disappears under the price scale.
 
 ## Rules for `series`
 
@@ -112,7 +118,7 @@ def _build_chart(df, params):
     closes = list(df["close"])
     volumes = list(df["volume"])
     return {
-        "plots": DECLARATION["plots"],
+        **DECLARATION,
         "series": {
             "ma_fast": _sma_series(closes, 9),
             "ma_slow": _sma_series(closes, 21),
@@ -186,7 +192,7 @@ def _build_chart(df, params):
     period = int((params or {}).get("period", 14))
     closes = list(df["close"])
     return {
-        "plots": DECLARATION["plots"],
+        **DECLARATION,
         "series": {"sma": _sma_series(closes, period)},
     }
 
@@ -203,10 +209,12 @@ def on_bar_strategy(sdk, params):
 ## Common errors
 
 * **Plot does not appear:** check `source` of the plot against the key in `series`. Both must be **exactly equal**, case-sensitive.
+* **Legend chip shows but the line is invisible:** the indicator declares no `pane` (or `pane: "overlay"`) but its values live in a different scale than price (RSI 0–100, MACD around zero, Aroon -100..+100). On a high-priced asset, the line collapses against y=0. Add `"pane": "new"` and `"scale": "right"` to the DECLARATION.
+* **Width or color silently ignored:** use `"width": 2` (not `"lineWidth"`) and `"#RRGGBB"` (not `"#RRGGBBAA"`). 8-digit hex with alpha is rejected by the validator. Area transparency is applied automatically.
 * **Misaligned line:** the series array has a length different from `len(df)`. Use `None` for warmup instead of omitting.
 * **All-gray histogram:** `colorExpression` is missing for differentiating positive/negative. Configure it or accept a single color.
 * **Plot "jumping" between points:** `None` in the middle of the series (after warmup). The frontend interprets it as a break. For continuous lines, ensure a dense computation.
-* **Returning `{"series": {...}}` without `"plots"`:** the frontend needs both in the return of the `df=` branch. Although the engine already has `DECLARATION["plots"]`, the contract is to return it explicitly.
+* **Reference levels (0, 70, 30) coded as constant series:** prefer the `"levels"` field of the DECLARATION. Levels keep their own scale-aware rendering and the first level also defines the baseline for `"type": "area"` plots.
 
 ## Next steps
 

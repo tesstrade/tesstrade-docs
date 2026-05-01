@@ -69,16 +69,7 @@ def _build_chart(df, params):
     fast = int((params or {}).get("fast_period", 9))
     closes = list(df["close"])
     return {
-        "plots": [
-            {
-                "name": "ma_fast",
-                "title": f"SMA {fast}",
-                "source": "ma_fast",
-                "type": "line",
-                "color": "#22D3EE",
-                "lineWidth": 2,
-            },
-        ],
+        **DECLARATION,
         "series": {
             "ma_fast": _sma_series(closes, fast),
         },
@@ -87,6 +78,10 @@ def _build_chart(df, params):
 
 **Rules for the return value:**
 
+* Spread `DECLARATION` (`{**DECLARATION, "series": {...}}`) so every metadata
+  field — `type`, `pane`, `scale`, `plots`, `levels` — travels with the data.
+  Returning only `{"plots": ..., "series": ...}` works in simple cases but
+  silently drops fields the renderer needs for oscillators and custom panes.
 * Every key in `series` must match the `source` of some plot exactly.
 * Each series array must have the **same length** as the list of candles. Use `None` in the warmup positions (before there are enough points to compute).
 * Numeric values must be `float` or `None`. Do not use `NaN`; use `None`.
@@ -135,14 +130,17 @@ def _sma_series(values, period):
             out.append(sum(values[i - period + 1:i + 1]) / period)
     return out
 
+DECLARATION["plots"] = [
+    {"name": "ma_fast", "title": "SMA fast", "source": "ma_fast",
+     "type": "line", "color": "#22D3EE", "width": 2},
+]
+DECLARATION["pane"] = "overlay"
+
 def _build_chart(df, params):
     fast = int((params or {}).get("fast_period", 9))
     closes = list(df["close"])
     return {
-        "plots": [
-            {"name": "ma_fast", "title": f"SMA {fast}", "source": "ma_fast",
-             "type": "line", "color": "#22D3EE", "lineWidth": 2},
-        ],
+        **DECLARATION,
         "series": {
             "ma_fast": _sma_series(closes, fast),
         },

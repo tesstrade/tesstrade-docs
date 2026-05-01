@@ -59,6 +59,16 @@ SecurityError: Nesting too deep
 ```
 **Fix:** split into smaller functions. The configured limits are hard to exceed in reasonable scripts.
 
+### Cause 6 - Restricted construct (`global`, `nonlocal`, `while True`, `del`)
+```
+SecurityError: <construct> is not allowed
+```
+**Fix:** rewrite the function without the construct.
+
+* `global` / `nonlocal`: pass values explicitly or persist through `sdk.state`.
+* `while True`: use a finite `for ... in range(...)` or guard the loop with a counter.
+* `del` statement: re-bind the variable to `None`.
+
 ## `TimeoutError`
 
 ```
@@ -200,6 +210,18 @@ UnknownError: <message>
 Fallback when the engine has not categorized the exception. It usually coincides with a Python `RuntimeError`.
 
 **Fix:** inspect the message. If it contains a Python traceback, treat it as RuntimeError.
+
+## Silent rendering issues (no exception)
+
+Some misconfigurations do not raise an error — the script runs, the engine
+accepts the return value, but the chart is empty or wrong. The most common:
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Legend chip appears, line is invisible | Oscillator declared with `pane: "overlay"` (default). On a high-priced asset, the line collapses against y=0 | Add `"pane": "new"` and `"scale": "right"` to the DECLARATION |
+| Width or color of a plot ignored | Field `lineWidth` (legacy) or 8-digit hex (`#RRGGBBAA`) | Use `"width": 2` and 6-digit hex (`"#RRGGBB"`); area transparency is automatic |
+| Reference levels (0, 70, 30) don't render with the right baseline | Constant series used instead of `levels` | Move the constants into `DECLARATION["levels"]` |
+| Plot drawn but `pane` field of declaration looks ignored | Style override saved with the indicator (legacy `style.pane`) is fighting the declaration | Re-save the indicator with the current declaration; the editor strips legacy style pane on save |
 
 ## Quick diagnostic table
 
