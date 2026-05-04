@@ -133,7 +133,14 @@ Sharpe 3.0 over 3 months of bull market may be luck. There is no guarantee of su
 
 ## "TimeoutError"
 
-Execution exceeded 200ms.
+A single bar exceeded the 800ms per-bar budget. The engine tolerates
+isolated occurrences (cold starts, GC pauses, occasional spikes) — a
+backtest only aborts when transient failures cross 5% of total bars
+(and at least 5 bars failed in absolute terms). If the run is
+finishing successfully but the logs include
+`X/Y bar callbacks failed transiently`, you are within tolerance and
+no action is required. If the run aborts, the most common causes are
+below.
 
 ### Cause 1 - Heavy loop over all candles
 
@@ -157,7 +164,11 @@ closes = [c["close"] for c in sdk.candles]
 
 ### Cause 3 - Recursive indicators not cached
 
-Recomputing EMA from scratch on every bar is O(n). Use an incremental version cached in `sdk.state`. See [persistent state](../strategies/persistent-state.md).
+Recomputing EMA from scratch on every bar is O(n). Use an incremental
+version cached in `sdk.state` (see [persistent state](../strategies/persistent-state.md))
+or a streaming class from
+[`tesstrade_indicators`](../indicators/tesstrade-indicators.md), which
+keeps the cost flat at O(1) per bar without manual cache management.
 
 ## "SecurityError"
 
@@ -202,7 +213,9 @@ def _key(x):
 
 ## "MemoryError"
 
-Exceeded 64MB.
+Exceeded the per-strategy memory ceiling. Trading logic rarely hits
+this organically — when it does, the cause is almost always an
+unbounded growing collection in `sdk.state`.
 
 ### Cause - Accumulating lists without a limit
 

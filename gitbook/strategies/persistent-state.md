@@ -63,4 +63,4 @@ graph LR
 **Always initialize keys before using them**, at least for non-numeric objects. Missing numeric keys return `0.0` automatically, which simplifies counters but can hide bugs for lists or dicts.
 
 ## Size limit
-`sdk.state` lives in sandbox memory (64MB limit). Avoid memory leaks by capping list sizes.
+`sdk.state` lives in sandbox memory subject to the per-strategy memory ceiling. Avoid memory leaks by capping list sizes — see [persistent state](#bounding-collections-in-state) and [sandbox limits](../getting-started/sandbox-limits.md#about-the-memory-limit).

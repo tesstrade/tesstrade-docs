@@ -4,6 +4,15 @@ Moving averages are the foundation of a large portion of strategies. A safe, opt
 
 This page covers implementations of SMA (Simple Moving Average), EMA (Exponential Moving Average), and variations.
 
+> **Faster alternative:** if the strategy reads SMA/EMA on every bar
+> and you don't need to inspect the math, the
+> [`tesstrade_indicators`](tesstrade-indicators.md) library exposes
+> `Sma`/`Ema` streaming classes that keep state across bars — O(1)
+> per update instead of O(n). Same Wilder/standard formulas as
+> `pandas_ta`, callable as `import tesstrade_indicators as ti; ti.Ema(20)`.
+> The implementations below remain the right reference when you need
+> to read or modify the math.
+
 ## SMA -- Simple moving average
 
 The arithmetic mean of the last `period` closes.

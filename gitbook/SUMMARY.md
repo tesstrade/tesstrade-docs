@@ -28,6 +28,7 @@
 * [Implementing SMA and EMA](indicators/implementing-sma-ema.md)
 * [RSI, MACD and Bollinger Bands](indicators/rsi-macd-bands.md)
 * [Panes: overlay vs new pane](indicators/panes.md)
+* [`tesstrade_indicators` (native library)](indicators/tesstrade-indicators.md)
 
 ## Ready-to-use strategies
 

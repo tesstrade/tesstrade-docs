@@ -10,7 +10,7 @@ Exceptions the engine may raise, with typical cause and fix. Search for the erro
 | `TimeoutError` | Execution exceeded the time limit | Medium - slow logic |
 | `MemoryError` | Exceeded the memory limit | Medium - uncontrolled accumulation |
 | `ProtocolError` | Protocol violated (missing action, invalid JSON) | High - contract |
-| `ProcessError` | Python subprocess crashed | High - infra |
+| `ProcessError` | Engine execution environment failed | High - infra |
 | `RuntimeError` | Classic Python error (IndexError, ZeroDiv, etc.) | Medium - bug in the script |
 | `WorkerPoolTimeout` | Queue full; request did not acquire a permit | Low - retry |
 | `UnknownError` | Uncategorized error | Investigate |
@@ -23,7 +23,7 @@ The engine rejected the code **before** execution. The script did not run.
 ```
 SecurityError: Import not allowed: os
 ```
-**Fix:** use only `numpy`, `pandas`, `math`, `json`, `datetime`, `pandas_ta`, `talib`. See [sandbox limits](../getting-started/sandbox-limits.md).
+**Fix:** use only `numpy`, `pandas`, `math`, `json`, `datetime`, `pandas_ta`, `talib`, `tesstrade_indicators`. See [sandbox limits](../getting-started/sandbox-limits.md).
 
 ### Cause 2 - Blocked builtin
 ```
@@ -75,6 +75,13 @@ SecurityError: <construct> is not allowed
 TimeoutError: Execution exceeded the time limit
 ```
 
+The engine enforces a per-bar time budget (default 800ms). A single
+bar exceeding the budget produces a `TimeoutError` for that bar; the
+backtest **continues** and only aborts when transient failures cross
+5% of total bars (with at least 5 absolute failures). If the run
+finishes with a log line `X/Y bar callbacks failed transiently`, the
+strategy is within tolerance.
+
 ### Cause 1 - Heavy loop
 ```python
 # Incorrect: O(n^2) on a list of 10000 candles
@@ -89,7 +96,11 @@ Building a DataFrame is costly.
 **Fix:** use a list comprehension: `closes = [c["close"] for c in sdk.candles]`.
 
 ### Cause 3 - Indicator recomputed from scratch on every bar
-**Fix:** cache in `sdk.state` and update incrementally. See [persistent state](../strategies/persistent-state.md).
+**Fix:** cache in `sdk.state` and update incrementally — see
+[persistent state](../strategies/persistent-state.md) — or use a
+streaming class from
+[`tesstrade_indicators`](../indicators/tesstrade-indicators.md), which
+keeps the cost flat at O(1) per bar.
 
 ## `MemoryError`
 
@@ -139,11 +150,12 @@ ProtocolError: Unable to serialize return value
 ## `ProcessError`
 
 ```
-ProcessError: Subprocess spawn failed
+ProcessError: <message>
 ```
-Infrastructure problem: the Python sandbox did not start or did not establish communication.
+Infrastructure problem: the engine's execution environment failed
+unexpectedly. Not caused by user code.
 
-**Fix:** this is not a user code error. Report it to support. Occurs rarely.
+**Fix:** report to support. Occurs rarely.
 
 ## `RuntimeError`
 

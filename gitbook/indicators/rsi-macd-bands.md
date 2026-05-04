@@ -2,6 +2,14 @@
 
 **Pure Python** implementations of three indicators common in quant strategies, with no dependency on `pandas_ta`.
 
+> **Faster alternatives:** for RSI and MACD, the
+> [`tesstrade_indicators`](tesstrade-indicators.md) library exposes
+> matching `Rsi`/`Macd` streaming classes (O(1) per bar, byte-for-byte
+> equivalent to the Wilder reference within float epsilon). Bollinger
+> Bands isn't in the catalogue yet — keep using the implementation
+> below for that one. The pure-Python references below are still
+> valuable when you need to read the math or extend it.
+
 ## RSI -- Relative Strength Index
 
 Oscillator between 0 and 100. Above 70 = overbought; below 30 = oversold.

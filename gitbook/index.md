@@ -140,8 +140,8 @@ Anything outside this surface raises `SecurityError`. Full detail in [Sandbox li
 
 | Limit | Default | Raised if exceeded |
 |---|---|---|
-| Time per call | 200ms | `TimeoutError` |
-| Memory | 64MB | `MemoryError` |
+| Time per bar | 800ms | `TimeoutError` (single bars are tolerated; persistent failures abort the run) |
+| Memory | per-strategy ceiling | `MemoryError` |
 | Code size | ~100KB | rejected at load time |
 | Nesting depth | 20 levels | rejected at load time |
 

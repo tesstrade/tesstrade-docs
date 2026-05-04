@@ -18,6 +18,12 @@ Injected automatically as globals (no `import` required):
 | `ta` / `pandas_ta` | safe optimized version | subset of `ta.ema`, `ta.rsi`, etc. |
 | `talib` | safe optimized version | limited subset |
 
+The following modules require an explicit `import`:
+
+| Module | What it is | When to use |
+|---|---|---|
+| `tesstrade_indicators` | native indicator library (optimized) | hot path of strategies that recompute indicators every bar |
+
 **Example:** the script below runs without error, with no `import`:
 
 ```python
@@ -31,14 +37,35 @@ def on_bar_strategy(sdk, params):
 
 These are safe, optimized versions that expose a subset of the popular functions. For full control over behavior, implement indicators in pure Python or with `np`/`pd`. See [implementing SMA/EMA](../indicators/implementing-sma-ema.md).
 
+### About `tesstrade_indicators`
+
+A native indicator library available as an optional `import`. Provides
+the same Wilder/standard formulas as `pandas_ta` (RSI, EMA, ATR, MACD,
+WMA, SMA) plus state-preserving streaming classes that are O(1) per
+bar instead of O(n) — meaningful when the strategy recomputes the
+same indicator on every candle. Full reference in
+[tesstrade_indicators](../indicators/tesstrade-indicators.md).
+
+```python
+import tesstrade_indicators as ti
+
+_rsi = ti.Rsi(14)  # constructed once at module scope; state survives across bars
+
+def on_bar_strategy(sdk, params):
+    _rsi.update(sdk.candles[-1]["close"])
+    if _rsi.is_ready() and _rsi.value() < 30:
+        sdk.buy(action="buy_to_open", qty=1, order_type="market")
+```
+
 ### Forbidden modules
 
 The import whitelist accepts only the modules above. Any other triggers `SecurityError`:
 
 ```python
 import os              # SecurityError
-import requests        # SecurityError
+import sys             # SecurityError
 import subprocess      # SecurityError
+import requests        # SecurityError
 from scipy import ...  # SecurityError
 import random          # SecurityError - not in the whitelist
 ```
@@ -137,22 +164,38 @@ predictable scripts over clever ones.
 
 | Resource | Default limit | Raised if exceeded |
 |---|---|---|
-| **Time per call** | 200ms | `TimeoutError` |
-| **Memory** | 64MB | `MemoryError` |
+| **Time per bar** | 800ms | `TimeoutError` |
+| **Memory** | per-strategy ceiling enforced by the engine | `MemoryError` |
 | **Source size** | ~100KB | rejected at load time (`SecurityError`) |
 | **Nesting depth** | 20 levels of blocks | rejected at load time |
 
-### About the 200ms limit
+### About the 800ms time budget
 
-For a typical strategy (indicators over 500 candles, simple logic), 200ms is adequate headroom. The usual execution time is between 5 and 20ms. If the limit is being exceeded, check:
+For a typical strategy (indicators over 500 candles, simple logic),
+800ms is generous headroom — usual execution time is between 5 and
+50ms. Backtests can request a higher per-bar budget when running
+heavier strategies (ML inference, custom scientific computation); the
+backtest panel exposes the option when applicable.
+
+A single bar that exceeds the budget produces a `TimeoutError` for
+that bar and the engine **continues** with subsequent bars. The
+backtest only aborts when transient failures cross 5% of the total
+bar count (and at least 5 bars failed) — single GC pauses or cold
+starts no longer kill the run.
+
+If timeouts are persistent, check:
 
 * Building `pd.DataFrame(sdk.candles)` on every candle is expensive. Prefer collecting directly with a list comprehension.
 * Iteration over the entire `sdk.candles`. Use only the last N (`sdk.candles[-period:]`).
-* Nested loop over candles. Reduce complexity - it is usually possible to vectorize with `np`.
+* Nested loop over candles. Reduce complexity — it is usually possible to vectorize with `np` or move the hot path to `tesstrade_indicators`.
+* Recomputing the same indicator from scratch every bar. Cache in `sdk.state` or use a streaming class from [`tesstrade_indicators`](../indicators/tesstrade-indicators.md).
 
-### About the 64MB limit
+### About the memory limit
 
-For trading logic, 64MB is sufficient. If the limit is being exceeded, there is usually a list accumulating in `sdk.state` without bound:
+For trading logic the per-strategy memory ceiling is generous —
+strategies very rarely hit it organically. When `MemoryError` does
+appear, there is usually a list accumulating in `sdk.state` without
+bound:
 
 ```python
 # Unbounded growth - causes MemoryError.
@@ -182,11 +225,11 @@ When something fails, the engine categorizes the error. See [error catalog](../r
 | Error | Common cause |
 |---|---|
 | `SecurityError` | Forbidden import, blocked builtin, lambda, dunder attribute |
-| `TimeoutError` | Loop too slow or infinite |
+| `TimeoutError` | A single bar exceeded the time budget. Tolerated up to 5% of bars (min 5 absolute) — beyond that the run aborts. |
 | `MemoryError` | List/dict growing without bound |
 | `ProtocolError` | `sdk.buy()` without `action`, invalid signal, non-JSON return |
 | `RuntimeError` | Classic Python: IndexError, ValueError, ZeroDivisionError |
-| `WorkerPoolTimeout` | Pool full; the strategy waited in the queue. Retry. |
+| `WorkerPoolTimeout` | Engine queue full; the request waited beyond its limit. Retry. |
 
 ## Next steps
 
