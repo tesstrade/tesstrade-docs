@@ -194,15 +194,15 @@ eval("1+1")               # SecurityError: eval is blocked
 ### Cause 3 - Dunder attribute
 
 ```python
-obj.__class__     # SecurityError: Forbidden attribute
+x.__internals__   # SecurityError: Forbidden attribute
 ```
 
-**Fix:** avoid introspection. To check a type, use `isinstance()`.
+**Fix:** `__xxx__` attributes are not available. To check a type, use `isinstance()`.
 
 ### Cause 4 - Lambda
 
 ```python
-key = lambda x: x[1]   # SecurityError: Lambda is forbidden
+key = lambda x: x[1]   # SecurityError: Lambda functions are forbidden
 ```
 
 **Fix:** use `def`:

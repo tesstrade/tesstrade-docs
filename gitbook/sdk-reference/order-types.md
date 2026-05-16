@@ -1,14 +1,14 @@
 # Order types
 
-The `order_type` kwarg of `sdk.buy/sell/close` controls **how** the order executes. Five values are accepted:
+The `order_type` kwarg of `sdk.buy/sell/close` controls **how** the order executes. Three values are accepted:
 
 | `order_type` | Executes | Extra kwargs |
 |---|---|---|
 | `"market"` | Immediately, at the current price (default) | - |
 | `"limit"` | At the specified price or better | `price` (required) |
 | `"stop"` | When the price hits the trigger, becomes market | `price` (trigger) |
-| `"stop_limit"` | Hits the trigger, becomes limit | `price` (trigger), more details below |
-| `"bracket"` | Groups entry + stop + target into one OCO | `stop_loss`, `take_profit` |
+
+Any other value falls back to `"market"`. A protective stop and target are **not** a separate order type — pass `stop_loss` / `take_profit` on a `market`, `limit`, or `stop` order (see [Attached stop and target](#attached-stop-and-target)).
 
 ## `market`
 
@@ -69,37 +69,22 @@ sdk.buy(
 
 **Classic case:** entry on breakout. The buy should happen only when the price breaks a resistance level.
 
-## `stop_limit`
+## Attached stop and target
 
-Inactive until the price crosses the trigger, at which point it becomes **limit**. More conservative than `stop`, since it avoids buying at any price during explosive moves.
-
-Used in advanced strategies; the engine implementation requires two prices (trigger + limit) passed via `price` + an auxiliary field. For most cases, prefer the simple `stop`.
-
-## `bracket`
-
-Groups three orders into one: **entry + stop + target**, linked as OCO (One-Cancels-Other). If the stop fires, the target is cancelled automatically; if the target executes, the stop is cancelled.
+There is no `bracket` or `stop_limit` order type. To get an entry with a protective stop and a profit target, pass `stop_loss` and/or `take_profit` **on the entry order** (`market`, `limit`, or `stop`):
 
 ```python
 close = sdk.candles[-1]["close"]
 sdk.buy(
     action="buy_to_open",
     qty=1,
-    order_type="bracket",
+    order_type="market",
     stop_loss=close * 0.98,
     take_profit=close * 1.05,
 )
 ```
 
-Result: market entry, stop 2% below, target 5% above. The first of the two to fire closes the position automatically, without additional logic in the script.
-
-### When to use `bracket` vs attaching `stop_loss` / `take_profit` on `market`
-
-Both work similarly. The difference is semantic:
-
-* **`market` + `stop_loss=x, take_profit=y`** - market entry, stops/targets configured as *exits* associated with the position.
-* **`bracket`** - explicitly groups the three orders at submit time. Clearer in logs and auditing.
-
-In practice the observable behavior is the same.
+Result: market entry, stop 2% below, target 5% above. The engine keeps both alive while the position is open; whichever is touched first closes the position and the other is cancelled automatically (OCO-style), with no extra logic in the script. The same `stop_loss` / `take_profit` kwargs work on a `limit` or `stop` entry.
 
 ## Time in Force (`tif`)
 
@@ -109,9 +94,9 @@ Regardless of `order_type`, `tif` controls **how long** the order stays alive wh
 |---|---|
 | `"day"` | Valid until the end of the day/session (default) |
 | `"gtc"` | Good-til-cancelled - lives until explicit cancellation |
-| `"ioc"` | Immediate-or-cancel - executes what it can now, the rest cancels |
-| `"fok"` | Fill-or-kill - all or nothing: executes 100% immediately or cancels entirely |
-| `"gtd"` | Good-til-date - expires at a specific timestamp (rare usage via script) |
+| `"this_bar"` | Valid only for the current bar; cancelled if it does not execute by the next candle |
+
+Any other value falls back to `"day"`.
 
 ```python
 sdk.buy(
@@ -141,9 +126,9 @@ The engine computes `qty = (cash * size_pct) / price`. Useful for strategies tha
 
 **Warning:** `size_pct` and `qty` are mutually exclusive. If you pass both, the engine prioritizes `qty` and ignores `size_pct`.
 
-## Combined example - breakout with bracket
+## Combined example - breakout with attached stop and target
 
-Breakout entry (stop order) with fixed stop and target (bracket):
+Breakout entry (stop order) with a fixed stop and target attached to it:
 
 ```python
 def on_bar_strategy(sdk, params):
@@ -179,7 +164,7 @@ def on_bar_strategy(sdk, params):
 * **`order_type="limit"` without `price`:** the engine rejects. Always pass `price=` on a limit.
 * **Using a `qty` that is too small in crypto Spot:** the book has a minimum size (for example, 0.00001 BTC). Below that, the matching engine rejects.
 * **`tif="day"` in 24/7 chart trading:** crypto has no formal "end of day"; the engine interprets `day` as 24h. Use `gtc` for a permanent order.
-* **Bracket with `stop_loss > close`:** on a buy (long), the stop must be **below** the current price. Placing it above triggers the order immediately.
+* **`stop_loss` above the entry price on a long:** on a buy (long), the stop must be **below** the current price. Placing it above closes the position immediately.
 
 ## Next steps
 

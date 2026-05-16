@@ -23,7 +23,6 @@ Fire on **every bar** on which the condition holds:
 | `less_than` | `<` | `source[t] < target[t]` |
 | `less_or_equal` | `<=` | `source[t] <= target[t]` |
 | `equals` | `==` | `source[t] == target[t]` |
-| `not_equals` | `!=` | `source[t] != target[t]` |
 
 The engine accepts **both the textual name and the symbol**. Prefer the textual form for readability.
 

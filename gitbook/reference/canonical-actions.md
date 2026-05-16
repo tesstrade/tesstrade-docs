@@ -30,13 +30,13 @@ Other variations (CamelCase, spaces, uppercase) **do not work**. The action is a
 sdk.buy(
     action="buy_to_open",        # required
     qty=1,                       # quantity (float)
-    order_type="market",         # "market" | "limit" | "stop" | "stop_limit" | "bracket"
+    order_type="market",         # "market" | "limit" | "stop"
     price=None,                  # for limit/stop
     stop_loss=None,              # stop price
     take_profit=None,            # target price
     trailing_stop_pct=None,      # percentage for native trailing
     time=None,                   # timestamp (ms); default: last candle
-    tif="day",                   # "day" | "gtc" | "ioc" | "fok" | "gtd"
+    tif="day",                   # "day" | "gtc" | "this_bar"
     size_pct=None,               # alternative to qty: % of cash
     oco_group=None,              # OCO group
     instrument_id=None,          # instrument override
@@ -136,6 +136,6 @@ elif sdk.position < 0 and cover_signal:
 ## Details on other pages
 
 * [Canonical actions - detail and examples](../sdk-reference/actions.md)
-* [Order types](../sdk-reference/order-types.md) - market, limit, stop, bracket
+* [Order types](../sdk-reference/order-types.md) - market, limit, stop
 * [Stops, targets and trailing](../sdk-reference/stops-and-targets.md) - trailing, update_exits
 * [Declarative mode](../declarative-mode/when-to-use.md) - using actions in `entry_conditions`

@@ -72,12 +72,10 @@ import random          # SecurityError - not in the whitelist
 
 ### Why `random` is blocked
 
-To guarantee **determinism** - same input, same output. When randomness is required, use a seed combined with a hash:
-
-```python
-seed = int(sdk.candles[-1]["time"]) % 10_000
-pseudo_random = (seed * 1103515245 + 12345) % 2_147_483_648
-```
+To guarantee **determinism** — the same input always produces the same
+output, which is what makes a backtest reproducible. If you need a
+value that varies per bar, derive it deterministically from the candle
+timestamp (for example, `hash(int(sdk.candles[-1]["time"]))`).
 
 ## Available builtins
 
@@ -120,16 +118,11 @@ delattr(x, "y")       # SecurityError
 memoryview(x)         # SecurityError
 ```
 
-### Forbidden dunder attributes
+### Dunder attributes
 
-Access to `__xxx__` attributes (except a few whitelisted ones) is blocked to prevent sandbox escape:
-
-```python
-obj.__class__             # SecurityError
-obj.__dict__              # SecurityError
-obj.__bases__             # SecurityError
-obj.__subclasses__()      # SecurityError
-```
+`__xxx__` attributes are not available to scripts (a small set such as
+`__name__` is the exception). Trading logic never needs them — to check
+a type, use `isinstance(x, T)` instead of any form of introspection.
 
 ### Lambdas
 
@@ -167,7 +160,8 @@ predictable scripts over clever ones.
 | **Time per bar** | 800ms | `TimeoutError` |
 | **Memory** | per-strategy ceiling enforced by the engine | `MemoryError` |
 | **Source size** | ~100KB | rejected at load time (`SecurityError`) |
-| **Nesting depth** | 20 levels of blocks | rejected at load time |
+| **Nesting depth** | 50 levels of blocks | rejected at load time |
+| **Code complexity** | ~10000 syntax nodes | rejected at load time (`SecurityError: Code too complex`) |
 
 ### About the 800ms time budget
 

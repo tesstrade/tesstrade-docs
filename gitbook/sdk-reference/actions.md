@@ -17,7 +17,7 @@ Every order issued by the script uses `sdk.buy(...)`, `sdk.sell(...)` or `sdk.cl
 `action` is required. `sdk.buy(qty=1)` without `action` raises `ProtocolError` and terminates the strategy:
 
 ```
-ProtocolError: Strict Mode: buy() / sell() requires an explicit action
+ProtocolError: Strict Mode: buy() / sell() requires explicit action
 ```
 
 No exceptions. Every call requires the `action` kwarg.
@@ -32,13 +32,13 @@ All methods (`buy`, `sell`, `close`) accept the same kwargs. The method only det
 sdk.buy(
     action,                      # REQUIRED - one of the 7 actions
     qty,                         # quantity (float; accepts fractional in crypto)
-    order_type="market",         # "market" (default) | "limit" | "stop" | "stop_limit"
-    price=None,                  # price for limit/stop_limit
+    order_type="market",         # "market" (default) | "limit" | "stop"
+    price=None,                  # price for limit (or stop trigger)
     stop_loss=None,              # stop price attached to the position
     take_profit=None,            # target price attached to the position
     trailing_stop_pct=None,      # trailing as a percentage (0.02 = 2%)
     time=None,                   # timestamp (ms). Default: last candle
-    tif="day",                   # "day" (default) | "gtc" | "ioc" | "fok" | "gtd"
+    tif="day",                   # "day" (default) | "gtc" | "this_bar"
     size_pct=None,               # % of cash - alternative to qty
     oco_group=None,              # OCO group (one-cancels-other)
     instrument_id=None,          # instrument override (rare)
@@ -211,7 +211,8 @@ Leaving `stop_loss=None` **does not clear the stop**; it only omits the update. 
 | `"market"` | Executes at market price (default) | none |
 | `"limit"` | Executes at the price or better | `price=X` |
 | `"stop"` | Turns into market when the trigger is touched | `price=X` (trigger) |
-| `"stop_limit"` | Turns into limit when the trigger is touched | `price=X` |
+
+Any other value falls back to `"market"`. For a protective stop/target, attach `stop_loss` / `take_profit` to the entry (see [Order types](order-types.md#attached-stop-and-target)).
 
 ```python
 # Limit order 2% below the close
@@ -231,9 +232,9 @@ sdk.buy(
 |---|---|
 | `"day"` | Expires at the end of the session (default) |
 | `"gtc"` | Good-til-cancelled - lives until you cancel |
-| `"ioc"` | Immediate-or-cancel - executes what it can now, cancels the rest |
-| `"fok"` | Fill-or-kill - executes everything now or cancels entirely |
-| `"gtd"` | Good-til-date (requires a complement; rarely used in scripts) |
+| `"this_bar"` | Valid only for the current bar; cancelled if not filled by the next candle |
+
+Any other value falls back to `"day"`.
 
 ---
 
@@ -253,7 +254,7 @@ sdk.buy(
 
 ## Common mistakes
 
-* **`ProtocolError: explicit action`** - the script called `sdk.buy(qty=1)` without `action=`. Fix by passing the canonical action.
+* **`ProtocolError: ... requires explicit action`** - the script called `sdk.buy(qty=1)` without `action=`. Fix by passing the canonical action.
 * **Using `sell_short` instead of `sell_short_to_open`** - the runtime accepts both for compatibility, but standardize on `sell_short_to_open` in new scripts.
 * **Using `qty=1` in crypto spot with a low balance** - generates "insufficient capital". In crypto, compute `qty` proportional to `sdk.cash`.
 * **Forgetting `qty=abs(sdk.position)` on closing orders** - without `qty` the order closes 1 unit, leaving the rest open.

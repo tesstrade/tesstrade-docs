@@ -111,7 +111,7 @@ Details in [persistent state](../strategies/persistent-state.md).
 ### "Strict Mode" error
 The `main()` function was not defined at the root level. Check that it is not indented.
 
-### "explicit action" error
+### "requires explicit action" error
 `sdk.buy()` was called without `action=`. All calls require that argument - the [canonical actions](../sdk-reference/actions.md) documentation lists the 7.
 
 ### "Import not allowed"

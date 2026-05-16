@@ -14,7 +14,6 @@ Complete reference of the operators that declarative mode (`entry_conditions` / 
 | `<` (or `less_than`) | Strictly less | `source[t] < target[t]` |
 | `<=` (or `less_or_equal`) | Less or equal | `source[t] <= target[t]` |
 | `==` (or `equals`) | Equal (point-wise) | `source[t] == target[t]` |
-| `!=` (or `not_equals`) | Different | `source[t] != target[t]` |
 
 `source[t]` is the last value of the series; `source[t-1]` is the value on the previous candle.
 

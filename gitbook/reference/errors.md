@@ -27,15 +27,15 @@ SecurityError: Import not allowed: os
 
 ### Cause 2 - Blocked builtin
 ```
-SecurityError: Forbidden builtin: eval
+SecurityError: Forbidden function call: eval
 ```
 **Fix:** banned builtins include `open`, `exec`, `eval`, `__import__`, `input`, `exit`, `dir`, `vars`, `globals`, `locals`. No substitute; remove from the logic.
 
 ### Cause 3 - Dunder attribute
 ```
-SecurityError: Forbidden attribute: __class__
+SecurityError: Forbidden attribute: <__dunder__>
 ```
-**Fix:** use `isinstance(x, type)` instead of accessing `__class__`. Deep introspection is not accepted.
+**Fix:** `__xxx__` attributes are not available to scripts. Trading logic never needs them — to check a type, use `isinstance(x, T)`.
 
 ### Cause 4 - Lambda
 ```
@@ -52,16 +52,20 @@ def _key(x):
 sorted_items = sorted(items, key=_key)
 ```
 
-### Cause 5 - Code too large or too nested
+### Cause 5 - Code too large, too complex, or too nested
 ```
-SecurityError: Code exceeds max size
-SecurityError: Nesting too deep
+SecurityError: Code too large: <N> bytes (max 102400)
+SecurityError: Code too complex: <N> AST nodes (max 10000)
+SecurityError: Code nesting too deep (max 50)
 ```
 **Fix:** split into smaller functions. The configured limits are hard to exceed in reasonable scripts.
 
 ### Cause 6 - Restricted construct (`global`, `nonlocal`, `while True`, `del`)
 ```
-SecurityError: <construct> is not allowed
+SecurityError: Global statement forbidden
+SecurityError: Nonlocal statement forbidden
+SecurityError: Delete statement forbidden
+SecurityError: Infinite loop forbidden: while True
 ```
 **Fix:** rewrite the function without the construct.
 
@@ -240,10 +244,10 @@ accepts the return value, but the chart is empty or wrong. The most common:
 | Message | Likely category | First step |
 |---|---|---|
 | "Import not allowed" | SecurityError | Remove the import |
-| "Forbidden builtin" | SecurityError | Remove the use |
+| "Forbidden function call" | SecurityError | Remove the use |
 | "Lambda" | SecurityError | Replace with `def` |
-| "Strict Mode" | ProtocolError | Add `main()` |
-| "explicit action" | ProtocolError | Add `action=` |
+| "Strict Mode ... must define a function" | ProtocolError | Add `main()` |
+| "requires explicit action" | ProtocolError | Add `action=` |
 | "execution exceeded time limit" | TimeoutError | Optimize the loop |
 | "memory limit exceeded" | MemoryError | Bound lists in state |
 | "IndexError" / "list out of range" | RuntimeError | Check `len(sdk.candles)` |

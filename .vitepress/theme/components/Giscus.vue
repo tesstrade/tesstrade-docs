@@ -6,7 +6,7 @@ const { isDark } = useData()
 const route = useRoute()
 
 const loadGiscus = () => {
-  // Limpa comentários antigos se existirem (importante para navegação SPA)
+  // Clear stale comments if present (important for SPA navigation)
   const existingContainer = document.querySelector('.giscus')
   if (existingContainer) existingContainer.innerHTML = ''
 
@@ -15,11 +15,11 @@ const loadGiscus = () => {
   script.async = true
   script.crossOrigin = 'anonymous'
   
-  // Atributos de configuração
+  // Configuration attributes
   script.setAttribute('data-repo', 'tesstrade/tesstrade-docs')
   script.setAttribute('data-repo-id', 'R_kgDOSIVsvQ')
   script.setAttribute('data-category', 'General')
-  // O Sr. S. vai me passar o data-category-id real abaixo
+  // TODO: replace with the real data-category-id
   script.setAttribute('data-category-id', 'DIC_kwDOSIVsvc4Cm7uH') 
   script.setAttribute('data-mapping', 'pathname')
   script.setAttribute('data-strict', '0')
@@ -33,7 +33,7 @@ const loadGiscus = () => {
   if (container) container.appendChild(script)
 }
 
-// Recarrega o Giscus quando o tema muda
+// Reload Giscus when the theme changes
 watch(isDark, () => {
   const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame')
   if (!iframe) return
@@ -43,7 +43,7 @@ watch(isDark, () => {
   )
 })
 
-// Recarrega o Giscus quando o usuário muda de página
+// Reload Giscus when the user navigates to another page
 watch(() => route.path, () => {
   nextTick(() => loadGiscus())
 })

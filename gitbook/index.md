@@ -61,7 +61,7 @@ The same function is called in three different contexts. See [The `main()` dispa
 | [Candles, params and state](sdk-reference/candles.md) | Reading market data and persisting values across bars |
 | [Position, cash and equity](sdk-reference/positions.md) | Portfolio properties exposed on the SDK |
 | [Canonical actions](sdk-reference/actions.md) | Every action string the engine accepts |
-| [Order types](sdk-reference/order-types.md) | Market, limit, stop, stop-limit, bracket |
+| [Order types](sdk-reference/order-types.md) | Market, limit, stop, and attached stop/target |
 | [Stops, targets and trailing](sdk-reference/stops-and-targets.md) | Protective stops, take-profit, and trailing stops |
 
 ### Indicators
@@ -143,7 +143,8 @@ Anything outside this surface raises `SecurityError`. Full detail in [Sandbox li
 | Time per bar | 800ms | `TimeoutError` (single bars are tolerated; persistent failures abort the run) |
 | Memory | per-strategy ceiling | `MemoryError` |
 | Code size | ~100KB | rejected at load time |
-| Nesting depth | 20 levels | rejected at load time |
+| Nesting depth | 50 levels | rejected at load time |
+| Code complexity | ~10000 syntax nodes | rejected at load time |
 
 
 

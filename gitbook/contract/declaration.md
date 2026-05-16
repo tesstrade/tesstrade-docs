@@ -218,7 +218,6 @@ An alternative to the manual `on_bar_strategy`. You declare the conditions and t
 | `less_than` / `<` | Source < target |
 | `less_or_equal` / `<=` | Source <= target |
 | `equals` / `==` | Source = target |
-| `not_equals` / `!=` | Source != target |
 
 ### Accepted actions
 

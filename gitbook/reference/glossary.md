@@ -6,11 +6,11 @@ Terms that appear in the documentation, organized alphabetically.
 
 **Action** - String that identifies the intent of an order. The 7 canonical actions: `buy_to_open`, `sell_short_to_open`, `sell_to_close`, `buy_to_cover`, `close_position`, `reverse_position`, `update_position_exits`. See [Canonical actions table](canonical-actions.md).
 
-**Admission control** - Backend subsystem that applies safety limits to prevent abuse. Returns HTTP 429 when a limit is exceeded.
+**Admission control** - If the API returns HTTP 429, requests are arriving too fast. Back off and retry after a few seconds.
 
 **Backtest** - Replay of a strategy against historical data. Processes thousands of candles in seconds. Deterministic. Generates quantitative metrics. See [Reading the results](../backtest/reading-results.md).
 
-**Bracket order** - Type of compound order: entry plus stop and target in OCO (one cancels the other). See [Order types](../sdk-reference/order-types.md#bracket).
+**Bracket order** - Conceptually, an entry plus an attached stop and target. In TessTrade this is expressed by passing `stop_loss` / `take_profit` on a `market`/`limit`/`stop` order (it is not a separate `order_type`). The engine keeps both alive; whichever fires first closes the position and cancels the other (OCO-style). See [Order types](../sdk-reference/order-types.md#attached-stop-and-target).
 
 **Candle** - Dictionary with `time`, `open`, `high`, `low`, `close`, `volume`. Fundamental data unit. `sdk.candles` is the list of them.
 
@@ -60,7 +60,7 @@ Terms that appear in the documentation, organized alphabetically.
 
 **Max Positions** - Limit of simultaneously open positions per account. Default 1 (no pyramiding).
 
-**OCO (One-Cancels-Other)** - Pair of orders in which execution of one cancels the other. Used in brackets (stop and target).
+**OCO (One-Cancels-Other)** - Pair of orders in which execution of one cancels the other. Applies to an attached stop and target: whichever triggers first cancels the other.
 
 **on_bar(sdk)** - Legacy entry point without a dispatcher. Works, but prefer `main()`.
 
@@ -106,7 +106,7 @@ Terms that appear in the documentation, organized alphabetically.
 
 **Target (condition)** - In an entry/exit condition, the other series (or constant) against which the source is compared. Required, or `value`.
 
-**TIF (Time In Force)** - Time during which the order stays alive: `"day"`, `"gtc"`, `"ioc"`, `"fok"`, `"gtd"`.
+**TIF (Time In Force)** - How long an unfilled order stays alive: `"day"` (default), `"gtc"`, or `"this_bar"`. Other values fall back to `"day"`.
 
 **Trailing stop** - Stop that follows the price: rises with it in long, drops in short. Implemented manually via `update_exits` plus `sdk.state`.
 

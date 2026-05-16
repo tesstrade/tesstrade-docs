@@ -22,7 +22,7 @@ Before executing a single line, the engine validates the code. If any check fail
 
 ## Phase 2 - Loading
 
-If the AST passes, the engine executes the file in the sandbox namespace. It is the equivalent of an `exec(your_code, safe_globals)`:
+If validation passes, the engine loads the file: it runs the top level of your script once so the names it defines become available.
 
 * Root-level definitions (`DECLARATION = {...}`, `def main(...)`, `def _helper(...)`) are registered.
 * Declared global variables (`PARAMS = {...}`) become live.
@@ -55,7 +55,7 @@ If none is found, the engine raises:
 
 ```
 ProtocolError: Strict Mode. Your strategy must define a function
-'main(df=None, sdk=None, params={})' or 'on_bar(sdk)'.
+'main(df=None, sdk=None, params={})', 'on_bar(sdk)', ...
 ```
 
 ## Phase 4 - Metadata (`main()` with no args)
@@ -134,7 +134,7 @@ For most scripts, restarts are rare and do not affect the strategy. The concern 
 flowchart TD
     Start[BACKTEST / CHART TRADING] --> P1[1. Validation]
     P1 -->|fail| E1[SecurityError<br/>rejected]
-    P1 --> P2[2. Loading<br/>exec(code, globals)]
+    P1 --> P2[2. Loading]
     P2 -->|fail| E2[SyntaxError / RuntimeError<br/>aborted]
     P2 --> P3[3. Entrypoint discovery<br/>main / on_bar]
     P3 -->|fail| E3[ProtocolError<br/>Strict Mode]
